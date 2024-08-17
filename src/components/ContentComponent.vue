@@ -1,9 +1,13 @@
 <template>
   <div class="content-container">
     <h2>Content Component created</h2>
-    <div class="content-wrapper">
+    <!-- I need to make if condition if  -->
+    <div class="content-wrapper" v-if="selectedSidebarItem == 'Home Page'">
       <ListComponent @itemSelected="onItemSelected" />
       <TableComponent :selectedItem="selectedItem" />
+    </div>
+    <div class="content-wrapper" v-else-if="selectedSidebarItem == 'Profile'">
+      <ProfileComponent />
     </div>
   </div>
 </template>
@@ -11,12 +15,22 @@
 <script>
 import ListComponent from "@/components/ListComponent.vue";
 import TableComponent from "@/components/TableComponent.vue";
+import ProfileComponent from "@/components/ProfileComponent.vue";
+import { state } from "@/state/state.js";
+import { computed } from "vue";
 
 export default {
   name: "ContentComponent",
   components: {
     ListComponent,
     TableComponent,
+    ProfileComponent,
+  },
+  setup() {
+    const selectedSidebarItem = computed(() => state.selectedSidebarItem);
+    return {
+      selectedSidebarItem,
+    };
   },
 
   data() {

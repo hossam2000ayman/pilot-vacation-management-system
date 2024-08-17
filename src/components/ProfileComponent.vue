@@ -15,13 +15,14 @@ export default {
 
 <style scoped>
 .profile-container {
+  height: 80vh;
+  color: white;
   width: 100%;
   text-align: center;
   background-color: orange;
 }
 
 .profile-wrapper {
-  background-color: #f8f9fa; /* Light background */
   display: flex;
   gap: 20px;
 }

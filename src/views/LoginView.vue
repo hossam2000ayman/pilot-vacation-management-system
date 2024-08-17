@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="login-container">
     <div class="card p-4 shadow-sm">
       <div class="text-center mb-4">
         <img class="logo" src="@/assets/asset_header_image.png" />
@@ -35,16 +35,15 @@
         </button>
       </form>
     </div>
-    <div class="position-fixed bottom-0 end-0 p-3">
-      <button class="btn btn-light border">
-        <i class="bi bi-brightness-high-fill"></i>
-      </button>
-    </div>
   </div>
 </template>
 
 <script>
-import { generateSamlToken, login } from "@/service/authService";
+import {
+  generateSamlToken,
+  loginOTDS,
+  getUserDetails,
+} from "@/service/authService";
 
 export default {
   name: "LoginView",
@@ -57,7 +56,7 @@ export default {
   },
   methods: {
     defaultLogin() {
-      if (this.username == "Admin" && this.password == "Asset99a") {
+      if (this.username === "Admin" && this.password === "Asset99a") {
         this.$router.push({ name: "home" }); // Navigate to home page
       } else {
         alert("Invalid login credentials");
@@ -66,14 +65,14 @@ export default {
       }
     },
 
-    async handleLogin() {
+    async handleAPILogin() {
       this.loading = true;
-      //first api to get the token from userName and password
       try {
-        let response = await login(this.username, this.password);
+        let response = await loginOTDS(this.username, this.password);
         if (response.success) {
-          response = await generateSamlToken(response.data);
+          response = await generateSamlToken(response.data.ticket);
           if (response.success) {
+            response = await getUserDetails(response.data);
             // Assuming the API returns a success flag
             this.$router.push({ name: "home" }); // Navigate to home page
             return;
@@ -94,18 +93,56 @@ export default {
 </script>
 
 <style scoped>
-:root {
+/* Container with animated gradient background */
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(
     90deg,
-    #0066cc,
-    #00264d
-  ); /* Gradient background */
+    #5baafa,
+    #00172e
+  ); /* Static Gradient as fallback */
+  background-size: 400% 400%; /* Ensures animation covers the entire background */
+  animation: gradientAnimation 7s linear infinite;
 }
+
+/* Keyframes for gradient animation */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .card {
   width: 300px;
   border-radius: 10px;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Slight transparency to blend with the background */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Subtle shadow for a raised effect */
 }
+
 .logo {
   width: 100%;
+}
+
+.btn-primary {
+  background-color: #2575fc;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #6a11cb;
 }
 </style>
