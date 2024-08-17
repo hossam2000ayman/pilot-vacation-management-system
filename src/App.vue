@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- switch between LoginView and HomeView based on Authentication -->
     <router-view></router-view>
   </div>
 </template>

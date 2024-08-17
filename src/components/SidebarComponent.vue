@@ -2,17 +2,16 @@
   <div
     :class="['sidebar', { 'sidebar-closed': !isSidebarOpen }]"
     :style="{ width: sideBarWidth }"
-    @transitionend="onTransitionEnd"
   >
     <ul class="nav flex-column">
       <li class="nav-item" @click="selectItem('Home Page')">
-        <router-link to="/home" class="nav-link">Home Page</router-link>
+        <router-link to="" class="nav-link">Home Page</router-link>
       </li>
-      <li class="nav-item" @click="selectItem('Profile')">
-        <router-link to="home" class="nav-link">Profile</router-link>
+      <li class="nav-item" @click="selectItem('Profile Page')">
+        <router-link to="" class="nav-link">Profile</router-link>
       </li>
       <li class="nav-item" @click="signOut">
-        <a href="#" class="nav-link">Signout</a>
+        <a href="#" class="nav-link">Sign Out</a>
       </li>
     </ul>
   </div>
@@ -29,15 +28,12 @@ export default {
     const router = useRouter();
 
     const signOut = () => {
-      // Perform signout logic here, then navigate to login page
-      router.push("/login");
+      // Perform signOut logic here, then navigate to login page
+      router.replace("/");
     };
 
     const selectItem = (item) => {
       selectSidebarItem(item);
-      if (item === "Signout") {
-        signOut();
-      }
     };
 
     return {
@@ -47,11 +43,7 @@ export default {
       signOut,
     };
   },
-  methods: {
-    onTransitionEnd() {
-      // Any logic after the transition ends (if needed)
-    },
-  },
+  methods: {},
 };
 </script>
 

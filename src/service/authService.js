@@ -11,10 +11,18 @@ export const loginOTDS = async (username, password) => {
       {
         userName: username,
         password: password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+          Connection: "keep-alive",
+          "Accept-Encoding": "gzip, deflate, br",
+        },
       }
     );
-    console.log(response.data);
-    return response.data.ticket; // Assuming the API returns a ticket
+    console.log(response.data); //expected to see ticket include in json response
+    return response.data.ticket;
   } catch (error) {
     throw new Error("Invalid credentials: " + error.message);
   }
@@ -47,12 +55,18 @@ export const generateSamlToken = async (ticket) => {
       soapEnvelope,
       {
         headers: {
-          "Content-Type": "text/xml",
+          "Content-Type": "application/xml",
+          Accept: "*/*",
+          Connection: "keep-alive",
+          "Accept-Encoding": "gzip, deflate, br",
         },
       }
     );
-    console.log(response.data);
-    return response.data; // The response will be XML, conversion may be required
+
+    const result = convertXMLToJSON(response);
+
+    console.log(result); //expect to found key AssertionArtifact in json response after conversion from xml
+    return result; // The response will be XML, conversion may be required
   } catch (error) {
     throw new Error("Failed to generate SAML token: " + error.message);
   }
@@ -74,14 +88,15 @@ export const getUserDetails = async (samlArt) => {
       soapEnvelope,
       {
         headers: {
-          "Content-Type": "text/xml",
+          "Content-Type": "application/xml",
+          Accept: "*/*",
+          Connection: "keep-alive",
+          "Accept-Encoding": "gzip, deflate, br",
         },
       }
     );
 
-    // Parse XML response to JSON format
-    const parser = new XMLParser();
-    const result = parser.parse(response.data);
+    const result = convertXMLToJSON(response);
 
     console.log(result); // Parsed JSON object
     return result;
@@ -89,3 +104,15 @@ export const getUserDetails = async (samlArt) => {
     throw new Error("Failed to get user details: " + error.message);
   }
 };
+
+// Parse XML response to JSON format
+function convertXMLToJSON(response) {
+  const parser = new XMLParser();
+  const result = parser.parse(response.data);
+  return result;
+}
+export class AuthService {
+  static loginOTDS = loginOTDS;
+  static generateSamlToken = generateSamlToken;
+  static getUserDetails = getUserDetails;
+}

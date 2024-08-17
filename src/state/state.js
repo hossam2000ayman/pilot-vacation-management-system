@@ -1,8 +1,8 @@
 import { reactive, computed } from "vue";
-
+//Make the getter for selectedSideBarItem and isSidebarOpen through the state object
 export const state = reactive({
-  isSidebarOpen: true,
-  selectedSidebarItem: "Home Page", // Initial value
+  isSidebarOpen: true, //it will open the sidebar at beginning
+  selectedSidebarItem: "Home Page", // Initial selection
 });
 
 export const toggleSidebar = () => {

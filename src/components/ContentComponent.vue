@@ -1,12 +1,14 @@
 <template>
   <div class="content-container">
     <h2>Content Component created</h2>
-    <!-- I need to make if condition if  -->
     <div class="content-wrapper" v-if="selectedSidebarItem == 'Home Page'">
       <ListComponent @itemSelected="onItemSelected" />
       <TableComponent :selectedItem="selectedItem" />
     </div>
-    <div class="content-wrapper" v-else-if="selectedSidebarItem == 'Profile'">
+    <div
+      class="content-wrapper"
+      v-else-if="selectedSidebarItem == 'Profile Page'"
+    >
       <ProfileComponent />
     </div>
   </div>
@@ -33,6 +35,7 @@ export default {
     };
   },
 
+  //in future versions todo
   data() {
     return {
       selectedItem: null,

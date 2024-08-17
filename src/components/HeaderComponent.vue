@@ -4,7 +4,6 @@
       <i class="fas fa-bars" style="color: white"></i>
     </button>
     <span class="sidebar-item-name">{{ selectedSidebarItem }}</span>
-    <!-- Display selected sidebar item -->
     <img
       src="@/assets/asset_header_image.png"
       alt="Logo"
@@ -12,9 +11,11 @@
     />
     <div class="actions">
       <button class="btn btn-light">
+        <!-- Add Vacation -->
         <i class="fas fa-plus"></i>
       </button>
-      <button class="btn btn-light">
+      <button class="btn btn-light" @click="selectItem('Profile Page')">
+        <!-- Show Profile Tab -->
         <i class="fas fa-user"></i>
       </button>
     </div>
@@ -22,7 +23,7 @@
 </template>
 
 <script>
-import { state, toggleSidebar } from "@/state/state";
+import { state, selectSidebarItem, toggleSidebar } from "@/state/state";
 import { computed } from "vue";
 
 export default {
@@ -30,9 +31,14 @@ export default {
   setup() {
     const selectedSidebarItem = computed(() => state.selectedSidebarItem);
 
+    const selectItem = (item) => {
+      selectSidebarItem(item);
+    };
+
     return {
       toggleSidebar,
       selectedSidebarItem,
+      selectItem,
     };
   },
 };
@@ -60,6 +66,8 @@ export default {
 
 .logo {
   width: 100px;
+  display: flex;
+  align-content: center;
 }
 
 .actions {

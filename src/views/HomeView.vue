@@ -6,7 +6,6 @@
       <div class="content-wrapper">
         <!-- To dynamically load the pages -->
         <ContentComponent />
-        <!-- <router-view /> -->
       </div>
     </div>
   </div>

@@ -39,11 +39,7 @@
 </template>
 
 <script>
-import {
-  generateSamlToken,
-  loginOTDS,
-  getUserDetails,
-} from "@/service/authService";
+import { AuthService } from "@/service/authService";
 
 export default {
   name: "LoginView",
@@ -65,17 +61,31 @@ export default {
       }
     },
 
+    /*
+     On using the API login function it will pass through 3 steps 
+    1- login with username and password and return the ticket
+    2- Generate a SAML Art by using the ticket
+    3- Get user information by using the SAML Art and for any other authorization
+    */
     async handleAPILogin() {
-      this.loading = true;
+      this.loading = true; //tell user that request are processing "Signing in ..."
       try {
-        let response = await loginOTDS(this.username, this.password);
+        let response = await AuthService.loginOTDS(
+          this.username,
+          this.password
+        );
         if (response.success) {
-          response = await generateSamlToken(response.data.ticket);
+          response = await AuthService.generateSamlToken(response.data.ticket);
           if (response.success) {
-            response = await getUserDetails(response.data);
-            // Assuming the API returns a success flag
-            this.$router.push({ name: "home" }); // Navigate to home page
-            return;
+            response = await AuthService.getUserDetails(response.data);
+            if (response.success) {
+              // Assuming the API returns a success flag
+              this.$router.push({ name: "home" }); // Navigate to home page
+              this.loading = false; //end the processing
+              return;
+            } else {
+              alert("Failed to get user details");
+            }
           } else {
             alert("Failed to generate SAML token");
           }
@@ -85,7 +95,7 @@ export default {
       } catch (error) {
         alert(error.message);
       } finally {
-        this.loading = false;
+        this.loading = false; //end the processing
       }
     },
   },
@@ -104,20 +114,23 @@ export default {
     #5baafa,
     #00172e
   ); /* Static Gradient as fallback */
-  background-size: 400% 400%; /* Ensures animation covers the entire background */
-  animation: gradientAnimation 7s linear infinite;
+  background-size: 400% 400%; /* Start with large background for animation */
+  animation: gradientAnimation 4s ease infinite; /* Adjust timing and easing */
 }
 
-/* Keyframes for gradient animation */
+/* Keyframes for gradient animation with background-size */
 @keyframes gradientAnimation {
   0% {
-    background-position: 0% 50%;
+    background-position: 50% 20%;
+    background-size: 200% 200%;
   }
   50% {
-    background-position: 100% 50%;
+    background-position: 100% 70%;
+    background-size: 100% 100%; /* Shrink background */
   }
   100% {
-    background-position: 0% 50%;
+    background-position: 50% 20%;
+    background-size: 200% 200%; /* Reset to original size */
   }
 }
 
@@ -143,6 +156,6 @@ export default {
 }
 
 .btn-primary:hover {
-  background-color: #6a11cb;
+  background-color: #3a0a6e;
 }
 </style>
