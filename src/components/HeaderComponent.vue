@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <button @click="toggleSidebar" class="btn btn-link">
-      <i class="fas fa-bars"></i>
+      <i class="fas fa-bars white-menu"></i>
     </button>
     <span class="sidebar-item-name">{{ selectedSidebarItem }}</span>
     <img
@@ -50,6 +50,10 @@ export default {
 </script>
 
 <style scoped>
+.white-menu {
+  color: white;
+}
+
 .header {
   background: linear-gradient(
     90deg,

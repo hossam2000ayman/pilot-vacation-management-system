@@ -11,20 +11,13 @@ export const loginOTDS = async (username, password) => {
       {
         userName: username,
         password: password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "*/*",
-          Connection: "keep-alive",
-          "Accept-Encoding": "gzip, deflate, br",
-        },
       }
     );
-    console.log(response.data); //expected to see ticket include in json response
+    console.log(` ticket ::  ${response.data.ticket}`); //expected to see ticket include in json response
+    localStorage.setItem("Ticket", response.data.ticket);
     return response.data.ticket;
   } catch (error) {
-    throw new Error("Invalid credentials: " + error.message);
+    throw new Error("Invalid credentials :: " + error.message);
   }
 };
 
@@ -57,23 +50,31 @@ export const generateSamlToken = async (ticket) => {
         headers: {
           "Content-Type": "application/xml",
           Accept: "*/*",
-          Connection: "keep-alive",
-          "Accept-Encoding": "gzip, deflate, br",
         },
       }
     );
 
     const result = convertXMLToJSON(response);
 
-    console.log(result); //expect to found key AssertionArtifact in json response after conversion from xml
-    return result; // The response will be XML, conversion may be required
+    console.log(
+      `Saml Token is created :: ${result["SOAP:Envelope"]["SOAP:Body"]["samlp:Response"]["samlp:AssertionArtifact"]}`
+    );
+    localStorage.setItem(
+      "SamlArt",
+      result["SOAP:Envelope"]["SOAP:Body"]["samlp:Response"][
+        "samlp:AssertionArtifact"
+      ]
+    );
+    return result["SOAP:Envelope"]["SOAP:Body"]["samlp:Response"][
+      "samlp:AssertionArtifact"
+    ];
   } catch (error) {
-    throw new Error("Failed to generate SAML token: " + error.message);
+    throw new Error("Failed to generate SAML token :: " + error.message);
   }
 };
 
 // 3. Third API: Get user details using the SAML token (SAML Art)
-export const getUserDetails = async (samlArt) => {
+export const getUserDetails = async () => {
   const soapEnvelope = `
     <SOAP:Envelope xmlns:SOAP="http://schemas.xmlsoap.org/soap/envelope/">
       <SOAP:Body>
@@ -84,24 +85,24 @@ export const getUserDetails = async (samlArt) => {
 
   try {
     const response = await axios.post(
-      `http://psuite:81/home/system/com.eibus.web.soap.Gateway.wcp?samlArt=${samlArt}`,
+      `http://psuite:81/home/system/com.eibus.web.soap.Gateway.wcp?samlArt=${localStorage.getItem(
+        "SamlArt"
+      )}`,
       soapEnvelope,
       {
         headers: {
           "Content-Type": "application/xml",
           Accept: "*/*",
-          Connection: "keep-alive",
-          "Accept-Encoding": "gzip, deflate, br",
         },
       }
     );
 
     const result = convertXMLToJSON(response);
-
-    console.log(result); // Parsed JSON object
+    console.log("Fetched user details :: "); // Parsed JSON object
+    console.log(result);
     return result;
   } catch (error) {
-    throw new Error("Failed to get user details: " + error.message);
+    throw new Error("Failed to get user details :: " + error.message);
   }
 };
 

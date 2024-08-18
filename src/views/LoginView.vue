@@ -5,7 +5,7 @@
         <img class="logo" src="@/assets/asset_header_image.png" />
       </div>
       <h5 class="card-title text-center mb-4">Login</h5>
-      <form @submit.prevent="defaultLogin">
+      <form @submit.prevent="handleAPILogin">
         <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { AuthService } from "@/service/authService";
+import { AuthService } from "@/service/authService.js";
 
 export default {
   name: "LoginView",
@@ -70,27 +70,28 @@ export default {
     async handleAPILogin() {
       this.loading = true; //tell user that request are processing "Signing in ..."
       try {
-        let response = await AuthService.loginOTDS(
-          this.username,
-          this.password
-        );
-        if (response.success) {
-          response = await AuthService.generateSamlToken(response.data.ticket);
-          if (response.success) {
-            response = await AuthService.getUserDetails(response.data);
-            if (response.success) {
+        let ticket = await AuthService.loginOTDS(this.username, this.password);
+        if (ticket) {
+          let samlArt = await AuthService.generateSamlToken(ticket);
+          if (samlArt) {
+            let userDetails = await AuthService.getUserDetails(samlArt);
+            if (userDetails) {
               // Assuming the API returns a success flag
-              this.$router.push({ name: "home" }); // Navigate to home page
+              this.$router.replace({ name: "home" }); // Navigate to home page
               this.loading = false; //end the processing
               return;
             } else {
-              alert("Failed to get user details");
+              alert(
+                `Failed to get user details check your response :: ${userDetails}`
+              );
             }
           } else {
-            alert("Failed to generate SAML token");
+            alert(
+              `Failed to generate SAML token check your response :: ${samlArt} `
+            );
           }
         } else {
-          alert("Invalid login credentials");
+          alert(`Invalid login credentials check your response :: ${ticket}`);
         }
       } catch (error) {
         alert(error.message);
