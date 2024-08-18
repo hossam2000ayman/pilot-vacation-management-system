@@ -5,7 +5,7 @@
         <img class="logo" src="@/assets/asset_header_image.png" />
       </div>
       <h5 class="card-title text-center mb-4">Login</h5>
-      <form @submit.prevent="handleAPILogin">
+      <form @submit.prevent="defaultLogin">
         <div class="mb-3">
           <label for="username" class="form-label">Username</label>
           <input
