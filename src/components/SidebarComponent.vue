@@ -10,6 +10,10 @@
       <li class="nav-item" @click="selectItem('Profile Page')">
         <router-link to="" class="nav-link">Profile</router-link>
       </li>
+
+      <li class="nav-item" @click="selectItem('Tasks Page')">
+        <router-link to="" class="nav-link">Tasks</router-link>
+      </li>
       <li class="nav-item" @click="signOut">
         <a href="#" class="nav-link">Sign Out</a>
       </li>

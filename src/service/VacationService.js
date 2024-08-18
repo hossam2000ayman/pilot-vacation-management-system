@@ -2,10 +2,12 @@ import axios from "axios";
 
 const getAllVacations = async () => {
   try {
-    let vacations =
-      await axios.get(`http://psuite:81/home/system/app/entityRestService/api/MyCompanyVacationProject/entities/Vacation/lists/Vacations
-  `);
-    if (vacations) {
+    let vacations = await axios.get(
+      `http://psuite:81/home/system/app/entityRestService/api/MyCompanyVacationProject/entities/Vacation/lists/Vacations?SAMLart=${localStorage.getItem(
+        "SamlArt"
+      )}`
+    );
+    if (vacations.data) {
       return vacations.data;
     }
   } catch (error) {

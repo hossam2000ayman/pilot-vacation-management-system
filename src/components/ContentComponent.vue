@@ -11,6 +11,12 @@
     >
       <ProfileComponent />
     </div>
+    <div
+      class="content-wrapper"
+      v-else-if="selectedSidebarItem == 'Tasks Page'"
+    >
+      <TaskComponent />
+    </div>
   </div>
 </template>
 
@@ -18,6 +24,7 @@
 import ListComponent from "@/components/ListComponent.vue";
 import TableComponent from "@/components/TableComponent.vue";
 import ProfileComponent from "@/components/ProfileComponent.vue";
+import TaskComponent from "@/components/TaskComponent.vue";
 import { state } from "@/state/state.js";
 import { computed } from "vue";
 
@@ -27,6 +34,7 @@ export default {
     ListComponent,
     TableComponent,
     ProfileComponent,
+    TaskComponent,
   },
   setup() {
     const selectedSidebarItem = computed(() => state.selectedSidebarItem);
