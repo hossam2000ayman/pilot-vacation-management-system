@@ -1,8 +1,9 @@
 import { reactive, computed } from "vue";
 //Make the getter for selectedSideBarItem and isSidebarOpen through the state object
 export const state = reactive({
-  isSidebarOpen: true, //it will open the sidebar at beginning
-  selectedSidebarItem: "Home Page", // Initial selection
+  isSidebarOpen: false, //it will closed the sidebar at beginning
+  getSelectedSidebarItem: "Home Page", // Initial selection
+  getSelectedListItem: "Vacations", // Default to Vacations
 });
 
 export const toggleSidebar = () => {
@@ -10,7 +11,11 @@ export const toggleSidebar = () => {
 };
 
 export function selectSidebarItem(item) {
-  state.selectedSidebarItem = item;
+  state.getSelectedSidebarItem = item;
+}
+
+export function changeListItem(item) {
+  state.getSelectedListItem = item;
 }
 
 export const SIDEBAR_WIDTH = 250; // Update this to match the width in SidebarComponent.vue

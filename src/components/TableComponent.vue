@@ -1,11 +1,22 @@
 <template>
+  <!-- Snackbar -->
+  <div v-if="snackbar.show" class="snackbar">{{ snackbar.message }}</div>
   <div class="table-container">
-    <button class="add-button" @click="showDialog = true">+</button>
+    <button
+      class="add-button"
+      v-if="dataType == 'vacations'"
+      @click="showDialog = true"
+    >
+      +
+    </button>
 
+    <div v-if="loading" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
     <!-- Table -->
-    <table class="vacation-table">
+    <table v-if="!loading" class="vacation-table">
       <thead>
-        <tr>
+        <tr v-if="dataType === 'vacations'">
           <th>Employee ID</th>
           <th>Employee Name</th>
           <th>Vacation Type</th>
@@ -14,16 +25,54 @@
           <th>Number of Days</th>
           <th>Reason</th>
         </tr>
+        <tr v-else-if="dataType === 'tasks'">
+          <th>Target Name</th>
+          <th>Source Name</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Start Date</th>
+          <th>Delivery Date</th>
+          <th>Status</th>
+        </tr>
       </thead>
-      <tbody>
-        <tr v-for="(vacation, index) in vacations" :key="index">
-          <td>{{ vacation.Properties.EmployeeID }}</td>
-          <td>{{ vacation.Properties.EmployeeName }}</td>
-          <td>{{ vacation.Properties.VacationType }}</td>
-          <td>{{ vacation.Properties.StartAt }}</td>
-          <td>{{ vacation.Properties.EndAt }}</td>
-          <td>{{ vacation.Properties.NumberOfDays }}</td>
-          <td>{{ vacation.Properties.Reason || "" }}</td>
+      <tbody v-if="dataType === 'vacations'">
+        <tr v-for="(item, index) in items" :key="index">
+          <td>{{ item.Properties.EmployeeID + "" }}</td>
+          <td>
+            {{ item.Properties.EmployeeName + "" }}
+          </td>
+          <td>
+            {{ item.Properties.VacationType + "" }}
+          </td>
+          <td>{{ formatDate(item.Properties.StartAt) + "" }}</td>
+          <td>{{ formatDate(item.Properties.EndAt) + "" }}</td>
+          <td>{{ item.Properties.NumberOfDays + "" }}</td>
+          <td>{{ item.Properties.Reason + "" }}</td>
+        </tr>
+      </tbody>
+      <tbody v-else-if="dataType == 'tasks'">
+        <tr v-for="(item, index) in items" :key="index">
+          <td>
+            {{ item.Task.TargetName + "" || "" }}
+          </td>
+          <td>{{ item.Task.Subject + "" || "" }}</td>
+          <td>{{ item.Task.SourceName + "" || "" }}</td>
+          <td>
+            {{ item.Task.Priority + "" || "" }}
+          </td>
+          <td>{{ item.Task.StartDate + "" || "" }}</td>
+          <td>{{ item.Task.DeliveryDate + "" || "" }}</td>
+          <td>
+            {{
+              item.Task.State == 1
+                ? "Approved"
+                : item.Task.State == 3
+                ? "Pending"
+                : item.Task.State == 5
+                ? "Rejected"
+                : ""
+            }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -117,13 +166,22 @@
 
 <script>
 import { VacationService } from "@/service/VacationService.js";
+import { TaskService } from "@/service/TaskService";
 
 export default {
   name: "TableComponent",
+  props: {
+    selectedItem: {
+      type: String,
+      default: null,
+    },
+  },
   data() {
     return {
-      vacations: [],
+      items: [],
       showDialog: false,
+      dataType: "vacations", //Default DataType
+      loading: false, // Add loading state
       newVacation: {
         EmployeeID: "",
         EmployeeName: "",
@@ -133,17 +191,55 @@ export default {
         NumberOfDays: 0,
         Reason: "",
       },
+      snackbar: {
+        show: false,
+        message: "",
+      },
     };
   },
-  async mounted() {
-    try {
-      let response = await VacationService.getAllVacations();
-      this.vacations = response._embedded.Vacations;
-    } catch (error) {
-      console.error("Error fetching vacations:", error);
-    }
+  watch: {
+    selectedItem: {
+      immediate: true,
+      async handler(newVal) {
+        this.loading = true; // Start loading
+        console.log("Selected Item:", newVal);
+        try {
+          if (newVal === "All Vacations") {
+            this.dataType = "vacations";
+            const response = await VacationService.getAllVacations();
+            this.items = response._embedded.Vacations;
+          } else if (newVal === "All Tasks") {
+            this.dataType = "tasks";
+            const response = await TaskService.getAllTasks();
+            this.items = response._embedded.AllTasks;
+          } else if (newVal == "Personal Tasks") {
+            this.dataType = "tasks";
+            const response = await TaskService.getPersonalTasks();
+            this.items = response._embedded.PersonalTasks;
+          } else if (newVal == "Roles Tasks") {
+            this.dataType = "tasks";
+            const response = await TaskService.getRolesTasks();
+            this.items = response._embedded.RolesTasks;
+          } else if (newVal == "Teams Tasks") {
+            this.dataType = "tasks";
+            const response = await TaskService.getTeamTasks();
+            this.items = response._embedded.TeamsTasks;
+          }
+        } catch (error) {
+          console.log(`Error fetching the data :: ${error}`);
+        } finally {
+          this.loading = false;
+        }
+      },
+    },
   },
   methods: {
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
     calculateDays() {
       if (this.newVacation.StartAt && this.newVacation.EndAt) {
         const startDate = new Date(this.newVacation.StartAt);
@@ -153,17 +249,102 @@ export default {
         this.newVacation.NumberOfDays = daysDiff + 1; // Include start date
       }
     },
-    submitVacation() {
+    async refreshVacations() {
+      this.loading = true;
+      const response = await VacationService.getAllVacations();
+      this.items = response._embedded.Vacations;
+      this.loading = false;
+    },
+    showSnackBar(message) {
+      this.snackbar.message = message;
+      this.snackbar.show = true;
+      setTimeout(() => {
+        this.snackbar.show = false;
+      }, 3000); // Snackbar will disappear after 3 seconds
+    },
+    async submitVacation() {
+      //validation on date before submit
+      if (this.newVacation.StartAt < new Date()) {
+        alert("Start date cannot be before the current date.");
+        return;
+      }
+
+      if (this.newVacation.EndAt < new Date()) {
+        alert("End date cannot be before the current date.");
+        return;
+      }
+
+      if (this.newVacation.StartAt >= this.newVacation.EndAt) {
+        alert("Start date should be before the end date and not equal.");
+        return;
+      }
       // Logic to submit the new vacation
       console.log("Submitting vacation:", this.newVacation);
-      // After submission, close the dialog
-      this.showDialog = false;
+      //create API for create the vacation
+      try {
+        let response = VacationService.createVacation(this.newVacation);
+        console.log(response);
+        // After submission, update the vacations array
+        await this.refreshVacations();
+        // close the dialog
+        this.showDialog = false;
+        // Show success snackbar
+        this.showSnackBar("Vacation created successfully!");
+      } catch (error) {
+        this.showSnackBar("Error creating vacation. Please try again.");
+        console.log("Error submitting vacation:", error);
+      }
     },
   },
 };
 </script>
 
 <style scoped>
+.snackbar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50; /* Green background */
+  color: white;
+  padding: 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  z-index: 10000; /* Make sure it appears on top */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #4682b4;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .table-container {
   width: 100%;
   height: 80vh;

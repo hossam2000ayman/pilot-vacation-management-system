@@ -2,14 +2,13 @@
   <div class="profile-container">
     <h2>Profile Component is created</h2>
     <div class="profile-wrapper">
-      <h5>profile forms</h5>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ProfileComponent",
+  name: "HrComponent",
 };
 </script>
 

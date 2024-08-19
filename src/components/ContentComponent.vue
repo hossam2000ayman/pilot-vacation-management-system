@@ -1,21 +1,27 @@
 <template>
   <div class="content-container">
-    <h2>Content Component created</h2>
     <div class="content-wrapper" v-if="selectedSidebarItem == 'Home Page'">
+      <!-- emit pass information from child to parent -->
       <ListComponent @itemSelected="onItemSelected" />
-      <TableComponent :selectedItem="selectedItem" />
+      <!-- props passing data from parent to child -->
+      <TableComponent :selectedItem="selectedListItem" />
     </div>
+    <div class="content-wrapper" v-else-if="selectedSidebarItem == 'HR Page'">
+      <HRComponent />
+    </div>
+    <div
+      class="content-wrapper"
+      v-else-if="selectedSidebarItem == 'Manager Page'"
+    >
+      <!-- here we separate this component into 2 components -->
+      <ManagerComponent />
+    </div>
+
     <div
       class="content-wrapper"
       v-else-if="selectedSidebarItem == 'Profile Page'"
     >
       <ProfileComponent />
-    </div>
-    <div
-      class="content-wrapper"
-      v-else-if="selectedSidebarItem == 'Tasks Page'"
-    >
-      <TaskComponent />
     </div>
   </div>
 </template>
@@ -23,36 +29,34 @@
 <script>
 import ListComponent from "@/components/ListComponent.vue";
 import TableComponent from "@/components/TableComponent.vue";
+import HRComponent from "@/components/HRComponent.vue";
+import ManagerComponent from "@/components/ManagerComponent.vue";
 import ProfileComponent from "@/components/ProfileComponent.vue";
-import TaskComponent from "@/components/TaskComponent.vue";
 import { state } from "@/state/state.js";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 export default {
   name: "ContentComponent",
   components: {
     ListComponent,
     TableComponent,
+    HRComponent,
+    ManagerComponent,
     ProfileComponent,
-    TaskComponent,
   },
   setup() {
-    const selectedSidebarItem = computed(() => state.selectedSidebarItem);
+    const selectedSidebarItem = computed(() => state.getSelectedSidebarItem);
+
+    const selectedListItem = ref("All Vacations"); //Initial Selected List Item
+    const onItemSelected = (item) => {
+      selectedListItem.value = item;
+    };
+
     return {
       selectedSidebarItem,
+      selectedListItem,
+      onItemSelected,
     };
-  },
-
-  //in future versions todo
-  data() {
-    return {
-      selectedItem: null,
-    };
-  },
-  methods: {
-    onItemSelected(item) {
-      this.selectedItem = item;
-    },
   },
 };
 </script>
@@ -60,7 +64,6 @@ export default {
 <style scoped>
 .content-container {
   width: 100%;
-  background-color: rgb(255, 93, 93);
   text-align: center;
 }
 

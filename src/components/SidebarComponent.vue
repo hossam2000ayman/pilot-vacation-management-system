@@ -7,12 +7,12 @@
       <li class="nav-item" @click="selectItem('Home Page')">
         <router-link to="" class="nav-link">Home Page</router-link>
       </li>
-      <li class="nav-item" @click="selectItem('Profile Page')">
-        <router-link to="" class="nav-link">Profile</router-link>
+      <li class="nav-item" @click="selectItem('HR Page')">
+        <router-link to="" class="nav-link">HR Page</router-link>
       </li>
 
-      <li class="nav-item" @click="selectItem('Tasks Page')">
-        <router-link to="" class="nav-link">Tasks</router-link>
+      <li class="nav-item" @click="selectItem('Manager Page')">
+        <router-link to="" class="nav-link">Manager Page</router-link>
       </li>
       <li class="nav-item" @click="signOut">
         <a href="#" class="nav-link">Sign Out</a>
@@ -53,7 +53,7 @@ export default {
 
 <style scoped>
 .sidebar {
-  background-color: #003366;
+  background-color: #0065ca;
   color: white;
   height: 100vh;
   padding: 20px;
