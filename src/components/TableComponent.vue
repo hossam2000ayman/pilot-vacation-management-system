@@ -31,7 +31,6 @@
           <th>Subject</th>
           <th>Priority</th>
           <th>Start Date</th>
-          <th>Delivery Date</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -55,22 +54,23 @@
           <td>
             {{ item.Task.TargetName + "" || "" }}
           </td>
-          <td>{{ item.Task.Subject + "" || "" }}</td>
           <td>{{ item.Task.SourceName + "" || "" }}</td>
+          <td>{{ item.Task.Subject + "" || "" }}</td>
           <td>
             {{ item.Task.Priority + "" || "" }}
           </td>
-          <td>{{ item.Task.StartDate + "" || "" }}</td>
-          <td>{{ item.Task.DeliveryDate + "" || "" }}</td>
+          <td>{{ formatDate(item.Task.StartDate) + "" || "" }}</td>
           <td>
             {{
               item.Task.State == 1
-                ? "Approved"
+                ? "Created"
                 : item.Task.State == 3
                 ? "Pending"
                 : item.Task.State == 5
-                ? "Rejected"
-                : ""
+                ? "Completed"
+                : item.Task.State == 2
+                ? "Assigned"
+                : item.Task.State + ""
             }}
           </td>
         </tr>
@@ -234,7 +234,8 @@ export default {
     },
   },
   methods: {
-    formatDate(date) {
+    formatDate(dateString) {
+      const date = new Date(dateString);
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
       const day = String(date.getDate()).padStart(2, "0");

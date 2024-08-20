@@ -51,7 +51,70 @@ const getAllVacations = async () => {
   }
 };
 
+const getVacationById = async (id) => {
+  try {
+    let vacation = await axios.get(
+      `http://psuite:81/home/system/app/entityRestService/api/MyCompanyVacationProject/entities/Vacation/items/${id}
+?SAMLart=${localStorage.getItem("SamlArt")}`
+    );
+    if (vacation.data) {
+      return vacation.data;
+    }
+  } catch (error) {
+    throw new Error(`Error on get all Vacations :: ${error}`);
+  }
+};
+
+const updateManagerApprovalVacation = async (id, decision) => {
+  try {
+    let requestBody = {
+      Properties: {
+        ManagerApproval: decision + "",
+      },
+    };
+    let response = await axios.put(
+      `http://psuite:81/home/system/app/entityRestService/api/MyCompanyVacationProject/entities/Vacation/items/${id}?SAMLart=${localStorage.getItem(
+        "SamlArt"
+      )}
+`,
+      requestBody
+    );
+    if (response.data) {
+      console.log(response.data);
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error(`Error on update Manager approval :: ${error}`);
+  }
+};
+
+const updateHRApprovalVacation = async (id, decision) => {
+  try {
+    let requestBody = {
+      Properties: {
+        HRApproval: decision + "",
+      },
+    };
+    let response = await axios.put(
+      `http://psuite:81/home/system/app/entityRestService/api/MyCompanyVacationProject/entities/Vacation/items/${id}?SAMLart=${localStorage.getItem(
+        "SamlArt"
+      )}
+`,
+      requestBody
+    );
+    if (response.data) {
+      console.log(response.data);
+      return response.data;
+    }
+  } catch (error) {
+    throw new Error(`Error on update Manager approval :: ${error}`);
+  }
+};
+
 export class VacationService {
   static getAllVacations = getAllVacations;
   static createVacation = createVacation;
+  static getVacationById = getVacationById;
+  static updateManagerApprovalVacation = updateManagerApprovalVacation;
+  static updateHRApprovalVacation = updateHRApprovalVacation;
 }

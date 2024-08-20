@@ -1,47 +1,89 @@
 <template>
+  <!-- Snackbar -->
+  <div v-if="snackbar.show" class="snackbar">{{ snackbar.message }}</div>
+
   <div class="manager-form-container">
     <form>
-      <label class="form-label left-align-label" for="name">Name:</label>
-      <input
-        type="text"
-        class="form-control"
-        id="name"
-        v-model="form.name"
-        readonly
-      />
-
-      <label class="form-label left-align-label" for="position"
-        >Position:</label
+      <label class="form-label left-align-label" for="EmployeeID"
+        >Employee ID:</label
       >
       <input
         type="text"
         class="form-control"
-        id="position"
-        v-model="form.position"
+        id="employeeId"
+        v-model="form.EmployeeID"
         readonly
       />
 
-      <label class="form-label left-align-label" for="department"
-        >Department:</label
+      <label class="form-label left-align-label" for="EmployeeName"
+        >Employee Name:</label
       >
       <input
         type="text"
         class="form-control"
-        id="department"
-        v-model="form.department"
+        id="employeeName"
+        v-model="form.EmployeeName"
         readonly
       />
 
+      <label class="form-label left-align-label" for="StartAt">Start At:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="startAt"
+        v-model="form.StartAt"
+        readonly
+      />
+
+      <label class="form-label left-align-label" for="EndAt">End At:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="endAt"
+        v-model="form.EndAt"
+        readonly
+      />
+
+      <label class="form-label left-align-label" for="NumberOfDays"
+        >Number Of Days:</label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="numberOfDays"
+        v-model="form.NumberOfDays"
+        readonly
+      />
+
+      <label class="form-label left-align-label" for="Reason">Reason:</label>
+      <textarea
+        type="text"
+        class="form-control"
+        id="reason"
+        v-model="form.Reason"
+        readonly
+      />
       <label for="vacationType" class="form-label left-align-label"
         >Vacation Type:
       </label>
-      <select class="form-select" id="vacationType">
-        <option>Annual</option>
-        <option>UnPaid</option>
-        <option>Sick</option>
-      </select>
+      <input
+        type="text"
+        class="form-control"
+        id="vacationType"
+        v-model="form.VacationType"
+        readonly
+      />
+      <div
+        v-if="
+          form.ManagerApproval == 'Approve' || form.ManagerApproval == 'Reject'
+        "
+      >
+        <h2 class="font-impact m-4">
+          {{ form.ManagerApproval }}
+        </h2>
+      </div>
 
-      <div v-if="!localMakeDecision">
+      <div v-else-if="form.ManagerApproval == 'Pending'">
         <button
           type="button"
           @click="submitDecision('Approve')"
@@ -57,74 +99,81 @@
           Reject
         </button>
       </div>
-      <div v-if="localMakeDecision">
-        <h2 class="font-impact m-4">
-          {{ finalDecision }}
-        </h2>
-      </div>
     </form>
   </div>
 </template>
 
 <script>
+import { TaskService } from "@/service/TaskService";
+
 export default {
   name: "ManagerFormComponent",
   props: {
-    manager: Object,
-    makeDecision: Boolean,
+    vacation: Object,
   },
   data() {
     return {
       form: {
-        name: "",
-        position: "",
-        department: "",
+        EmployeeID: "",
+        EmployeeName: "",
+        EndAt: "",
+        NumberOfDays: "",
+        Reason: "",
+        StartAt: "",
+        VacationType: "",
+        ManagerApproval: "",
       },
-      localMakeDecision: this.makeDecision,
-      finalDecision: "",
+      snackbar: {
+        show: false,
+        message: "",
+      },
     };
   },
   watch: {
-    manager: {
+    vacation: {
       immediate: true,
       handler(newVal) {
         if (newVal) {
-          this.form = { ...newVal }; // Populate form with manager data
+          this.form = { ...newVal.Properties }; // Populate form with vacation data
+          this.form.StartAt = this.formatDate(this.form.StartAt);
+          this.form.EndAt = this.formatDate(this.form.EndAt);
         }
-      },
-    },
-    makeDecision: {
-      immediate: true,
-      handler(newVal) {
-        this.localMakeDecision = newVal;
       },
     },
   },
   methods: {
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
     submitDecision(decision) {
-      // Replace this with your form submission logic
+      if (decision == "Approve") {
+        this.form.ManagerApproval = "Approve";
+        console.log("Approve taken to this Form :: ");
+      } else if (decision == "Reject") {
+        this.form.ManagerApproval = "Reject";
+        console.log("Reject taken to this Form :: ");
+      }
       console.log("Form submitted:", this.form);
       console.log("Decision taken is ::", decision);
-
-      if (decision === "Approve") {
-        this.finalDecision = "APPROVED";
-        // Call API related to approve
-      } else if (decision === "Reject") {
-        this.finalDecision = "REJECTED";
-        // Call API related to reject
-      }
-
-      this.localMakeDecision = true;
-      this.$emit("update-decision", this.localMakeDecision); // Emit an event to update the decision state
-      this.resetForm();
+      //1- Claim Action
+      TaskService.claimTaskByTaskInstanceAndTarget();
+      //2- Update the vacation status to approved
+      this.$emit("update-decision", this.form.ManagerApproval); // Emit an event to update the decision state
+      this.showSnackBar(
+        `Your decision is ${this.form.ManagerApproval}ed Successfully :: `
+      );
     },
-    resetForm() {
-      this.form = {
-        name: "",
-        position: "",
-        department: "",
-      };
-      this.$emit("form-submitted", this.form);
+
+    showSnackBar(message) {
+      this.snackbar.message = message;
+      this.snackbar.show = true;
+      setTimeout(() => {
+        this.snackbar.show = false;
+      }, 3000); // Snackbar will disappear after 3 seconds
     },
   },
 };

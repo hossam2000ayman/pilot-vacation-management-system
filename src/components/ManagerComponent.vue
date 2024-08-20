@@ -2,9 +2,7 @@
   <div class="manager-container">
     <div class="manager-wrapper">
       <ManagerFormComponent
-        :manager="selectedManager"
-        :makeDecision="makeDecision"
-        @form-submitted="handleFormSubmitted"
+        :vacation="selectedVacation"
         @update-decision="handleUpdateDecision"
       />
       <ManagerTableComponent @view-manager="handleViewManager" />
@@ -13,8 +11,10 @@
 </template>
 
 <script>
+import { VacationService } from "@/service/VacationService";
 import ManagerFormComponent from "./ManagerFormComponent.vue";
 import ManagerTableComponent from "./ManagerTableComponent.vue";
+import { TaskService } from "@/service/TaskService";
 
 export default {
   name: "ManagerComponent",
@@ -25,22 +25,37 @@ export default {
 
   data() {
     return {
-      selectedManager: null,
-      makeDecision: false,
+      selectedVacation: null,
+      managerApproval: null,
     };
   },
   methods: {
-    handleViewManager(manager, makeDecision) {
-      this.selectedManager = manager;
-      this.makeDecision = makeDecision;
+    handleViewManager(vacation) {
+      this.selectedVacation = vacation;
+
+      console.log(
+        "Task >>>> Vacation ID ::  " + this.selectedVacation.Identity.Id
+      );
+      console.log("Task >>>> Selected Vacation Object :: ");
+      console.log(this.selectedVacation.Properties);
     },
-    handleFormSubmitted(updatedManager) {
-      // Handle form submission
-      console.log("Manager updated:", updatedManager);
-      this.selectedManager = null;
-    },
-    handleUpdateDecision(makeDecision) {
-      this.makeDecision = makeDecision;
+    async handleUpdateDecision(decision) {
+      this.managerApproval = decision;
+      //update vacation from ManagerApproval to Approve
+      let response = await VacationService.updateManagerApprovalVacation(
+        this.selectedVacation.Identity.Id,
+        this.managerApproval
+      );
+      console.log("Updated Vacation Successfully Response :::::: ");
+      console.log(response);
+      //3- Complete action after delay
+      setTimeout(async () => {
+        response = await TaskService.completeTaskByTaskInstanceAndTarget();
+        console.log("Complete Task :::::: ");
+        console.log(response);
+      }, 5000);
+
+      // window.location.reload();
     },
   },
 };

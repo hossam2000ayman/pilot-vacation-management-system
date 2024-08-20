@@ -1,21 +1,47 @@
 <template>
   <div class="table-container">
-    <table class="hr-table">
+    <div v-if="loading" class="spinner-overlay">
+      <div class="spinner"></div>
+    </div>
+    <!-- Table -->
+    <table v-if="!loading" class="hr-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Position</th>
-          <th>Department</th>
-          <th>Actions</th>
+          <th>Source Name</th>
+          <th>Priority</th>
+          <th>Start Date</th>
+          <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="hr in hrs" :key="hr.id">
-          <td>{{ hr.name }}</td>
-          <td>{{ hr.position }}</td>
-          <td>{{ hr.department }}</td>
+      <tbody v-for="(item, index) in hrApprovalTasks" :key="index">
+        <tr>
+          <td>{{ item.Task.SourceName + "" || "" }}</td>
           <td>
-            <button @click="editHR(hr)">Edit</button>
+            {{ item.Task.Priority + "" || "" }}
+          </td>
+          <td>{{ formatDate(item.Task.StartDate) + "" || "" }}</td>
+          <td>
+            {{
+              item.Task.State == 1
+                ? "Created"
+                : item.Task.State == 3
+                ? "Pending"
+                : item.Task.State == 5
+                ? "Completed"
+                : item.Task.State == 2
+                ? "Assigned"
+                : item.Task.State + ""
+            }}
+          </td>
+          <td>
+            <button
+              type="button"
+              @click="viewTask(item._links.item.href)"
+              class="btn btn-outline-info"
+            >
+              View
+            </button>
           </td>
         </tr>
       </tbody>
@@ -24,38 +50,107 @@
 </template>
 
 <script>
+import { TaskService } from "@/service/TaskService";
+import { VacationService } from "@/service/VacationService";
+
 export default {
   name: "HRTableComponent",
   data() {
     return {
-      hrs: [], // Placeholder for the manager data
+      loading: false, // Add loading state
+      tasks: [], // Placeholder for the All tasks data
+      hrApprovalTasks: [], // Placeholder for the HRApprovalTasks data
+      snackbar: {
+        show: false,
+        message: "",
+      },
+      taskInstance: "",
+      target: "",
     };
   },
-  created() {
-    this.fetchHRs();
+  async mounted() {
+    await this.fetchManagersTasks();
   },
   methods: {
-    fetchHRs() {
-      // Simulate an API call
-      this.hrs = [
-        { id: 1, name: "John Doe", position: "HR", department: "Sales" },
-        {
-          id: 2,
-          name: "Jane Smith",
-          position: "HR",
-          department: "Marketing",
-        },
-        // Add more managers as needed
-      ];
+    async fetchManagersTasks() {
+      this.loading = true;
+      const response = await TaskService.getAllTasks();
+      this.tasks = response._embedded.AllTasks;
+
+      this.hrApprovalTasks = this.tasks.filter(
+        (task) => task.Task.Subject === "HR Approval"
+      );
+      console.log(this.hrApprovalTasks);
+
+      this.loading = false;
     },
-    editHR(hr) {
-      this.$emit("edit-hr", hr);
+    async viewTask(item) {
+      // /OpenTextInboxTaskManagement/entities/InboxTask/items/MDAwQzI5MjYtOTFCRS1BMUVGLTk3QjAtQjM2QUM0QUM3MDQz.MDAwQzI5MjYtOTFCRS1BMUVGLTk2QzItMEM3RjI0OTJCMDQw
+      // Remove the prefix to isolate the part containing the IDs
+      const compositeId = item.substring(item.lastIndexOf("/") + 1);
+      // Split the string by the dot to get the two parts
+      const [taskInstanceId, target] = compositeId.split(".");
+      // Output the results
+      console.log("taskInstanceId:", taskInstanceId); // Output: MDAwQzI5MjYtOTFCRS1BMUVGLTk3QjAtQjM2QUM0QUM3MDQz
+      console.log("target:", target);
+      //most important script in world (tricky script)
+      localStorage.setItem("taskInstanceId", taskInstanceId);
+      localStorage.setItem("target", target);
+      //get task by taskInstance and target
+      let task = await TaskService.getTaskByTaskInstanceAndTarget(
+        taskInstanceId,
+        target
+      );
+      let vacationInstanceId = task.Task.EntityInstanceId;
+      let vacationId = vacationInstanceId.substring(
+        vacationInstanceId.lastIndexOf(".") + 1
+      );
+      //get vacation by entityInstanceId
+      let selectedVacation = await VacationService.getVacationById(vacationId);
+      this.$emit("view-hr", selectedVacation);
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     },
   },
 };
 </script>
 
 <style scoped>
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #4682b4;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .table-container {
   width: 100%;
   height: 80vh;
