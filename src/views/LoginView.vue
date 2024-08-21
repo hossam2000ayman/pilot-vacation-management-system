@@ -53,7 +53,7 @@ export default {
   methods: {
     defaultLogin() {
       if (this.username === "Admin" && this.password === "Asset99a") {
-        this.$router.push({ name: "home" }); // Navigate to home page
+        this.$router.replace({ name: "home" }); // Navigate to home page
       } else {
         alert("Invalid login credentials");
         this.username = "";

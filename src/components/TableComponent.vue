@@ -245,9 +245,9 @@ export default {
       if (this.newVacation.StartAt && this.newVacation.EndAt) {
         const startDate = new Date(this.newVacation.StartAt);
         const endDate = new Date(this.newVacation.EndAt);
-        const timeDiff = endDate - startDate;
-        const daysDiff = timeDiff / (1000 * 3600 * 24);
-        this.newVacation.NumberOfDays = daysDiff + 1; // Include start date
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including start day
+        this.newVacation.NumberOfDays = diffDays;
       }
     },
     async refreshVacations() {
@@ -283,7 +283,7 @@ export default {
       console.log("Submitting vacation:", this.newVacation);
       //create API for create the vacation
       try {
-        let response = VacationService.createVacation(this.newVacation);
+        let response = await VacationService.createVacation(this.newVacation);
         console.log(response);
         // After submission, update the vacations array
         await this.refreshVacations();
@@ -329,12 +329,12 @@ export default {
 }
 
 .spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
+  border: 4px solid #f3f3f3;
   border-left-color: #4682b4;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
+  width: 60px;
+  height: 60px;
+  animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {

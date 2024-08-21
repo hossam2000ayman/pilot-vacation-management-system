@@ -180,6 +180,19 @@ export default {
 </script>
 
 <style scoped>
+.snackbar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4caf50; /* Green background */
+  color: white;
+  padding: 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  z-index: 10000; /* Make sure it appears on top */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 .font-impact {
   font-family: Impact;
 }

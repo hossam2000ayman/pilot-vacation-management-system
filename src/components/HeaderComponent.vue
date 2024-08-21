@@ -27,7 +27,7 @@ import { computed } from "vue";
 export default {
   name: "HeaderComponent",
   setup() {
-    const selectedSidebarItem = computed(() => state.selectedSidebarItem);
+    const selectedSidebarItem = computed(() => state.getSelectedSidebarItem);
 
     // Handle option selection
     const createVacation = () => {

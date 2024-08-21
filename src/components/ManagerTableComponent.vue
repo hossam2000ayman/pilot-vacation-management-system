@@ -85,13 +85,13 @@ export default {
       this.loading = false;
     },
     async viewTask(item) {
-      // /OpenTextInboxTaskManagement/entities/InboxTask/items/MDAwQzI5MjYtOTFCRS1BMUVGLTk3QjAtQjM2QUM0QUM3MDQz.MDAwQzI5MjYtOTFCRS1BMUVGLTk2QzItMEM3RjI0OTJCMDQw
+      // /OpenTextInboxTaskManagement/entities/InboxTask/items/taskInstanceId.target
       // Remove the prefix to isolate the part containing the IDs
       const compositeId = item.substring(item.lastIndexOf("/") + 1);
       // Split the string by the dot to get the two parts
       const [taskInstanceId, target] = compositeId.split(".");
       // Output the results
-      console.log("taskInstanceId:", taskInstanceId); // Output: MDAwQzI5MjYtOTFCRS1BMUVGLTk3QjAtQjM2QUM0QUM3MDQz
+      console.log("taskInstanceId:", taskInstanceId); 
       console.log("target:", target);
       localStorage.setItem("taskInstanceId", taskInstanceId);
       localStorage.setItem("target", target);
@@ -134,12 +134,12 @@ export default {
 }
 
 .spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
+  border: 4px solid #f3f3f3;
   border-left-color: #4682b4;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
+  width: 60px;
+  height: 60px;
+  animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {

@@ -1,8 +1,8 @@
 <template>
   <div class="layout">
-    <SideBar />
+    <SidebarComponent />
     <div class="main-content">
-      <Header />
+      <HeaderComponent />
       <div class="content-wrapper">
         <!-- To dynamically load the pages -->
         <ContentComponent />
@@ -12,15 +12,15 @@
 </template>
 
 <script>
-import SideBar from "@/components/SidebarComponent.vue";
-import Header from "@/components/HeaderComponent.vue";
+import SidebarComponent from "@/components/SidebarComponent.vue";
+import HeaderComponent from "@/components/HeaderComponent.vue";
 import ContentComponent from "@/components/ContentComponent.vue";
 
 export default {
   name: "HomeView",
   components: {
-    SideBar,
-    Header,
+    SidebarComponent,
+    HeaderComponent,
     ContentComponent,
   },
 };

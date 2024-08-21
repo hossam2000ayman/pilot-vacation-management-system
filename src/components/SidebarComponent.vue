@@ -32,7 +32,6 @@ export default {
     const router = useRouter();
 
     const signOut = () => {
-      // Perform signOut logic here, then navigate to login page
       router.replace("/");
     };
 
@@ -47,7 +46,6 @@ export default {
       signOut,
     };
   },
-  methods: {},
 };
 </script>
 
