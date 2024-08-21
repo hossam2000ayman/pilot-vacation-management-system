@@ -29,7 +29,7 @@ export default {
   setup() {
     const selectedSidebarItem = computed(() => state.getSelectedSidebarItem);
 
-    // Handle option selection
+    // Future release 
     const createVacation = () => {
       alert("Vacation is created");
     };
