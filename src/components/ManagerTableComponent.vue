@@ -71,6 +71,19 @@ export default {
   async mounted() {
     await this.fetchManagersTasks();
   },
+
+  watch: {
+    tasks: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.managerApprovalTasks = this.tasks
+            .filter((task) => task.Task.Subject == "ManagerApprovalLayout")
+            .sort((a, b) => a.Task.State - b.Task.State);
+        }
+      },
+    },
+  },
   methods: {
     async fetchManagersTasks() {
       this.loading = true;
@@ -91,7 +104,7 @@ export default {
       // Split the string by the dot to get the two parts
       const [taskInstanceId, target] = compositeId.split(".");
       // Output the results
-      console.log("taskInstanceId:", taskInstanceId); 
+      console.log("taskInstanceId:", taskInstanceId);
       console.log("target:", target);
       localStorage.setItem("taskInstanceId", taskInstanceId);
       localStorage.setItem("target", target);

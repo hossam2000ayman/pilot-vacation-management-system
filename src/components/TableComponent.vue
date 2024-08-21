@@ -25,7 +25,34 @@
           <th>Number of Days</th>
           <th>Reason</th>
         </tr>
-        <tr v-else-if="dataType === 'tasks'">
+        <tr v-else-if="dataType === 'tasks' && retrieveType == 'All Tasks'">
+          <th>Target Name</th>
+          <th>Source Name</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Start Date</th>
+          <th>Status</th>
+        </tr>
+
+        <tr
+          v-else-if="dataType === 'tasks' && retrieveType == 'Personal Tasks'"
+        >
+          <th>Source Name</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Start Date</th>
+          <th>Status</th>
+        </tr>
+
+        <tr v-else-if="dataType === 'tasks' && retrieveType == 'Roles Tasks'">
+          <th>Target Name</th>
+          <th>Source Name</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Start Date</th>
+          <th>Status</th>
+        </tr>
+        <tr v-else-if="dataType === 'tasks' && retrieveType == 'Teams Tasks'">
           <th>Target Name</th>
           <th>Source Name</th>
           <th>Subject</th>
@@ -49,7 +76,87 @@
           <td>{{ item.Properties.Reason + "" }}</td>
         </tr>
       </tbody>
-      <tbody v-else-if="dataType == 'tasks'">
+      <tbody v-else-if="dataType == 'tasks' && retrieveType == 'All Tasks'">
+        <tr v-for="(item, index) in items" :key="index">
+          <td>
+            {{ item.Task.TargetName + "" || "" }}
+          </td>
+          <td>{{ item.Task.SourceName + "" || "" }}</td>
+          <td>{{ item.Task.Subject + "" || "" }}</td>
+          <td>
+            {{ item.Task.Priority + "" || "" }}
+          </td>
+          <td>{{ formatDate(item.Task.StartDate) + "" || "" }}</td>
+          <td>
+            {{
+              item.Task.State == 1
+                ? "Created"
+                : item.Task.State == 3
+                ? "Pending"
+                : item.Task.State == 5
+                ? "Completed"
+                : item.Task.State == 2
+                ? "Assigned"
+                : item.Task.State + ""
+            }}
+          </td>
+        </tr>
+      </tbody>
+
+      <tbody
+        v-else-if="dataType == 'tasks' && retrieveType == 'Personal Tasks'"
+      >
+        <tr v-for="(item, index) in items" :key="index">
+          <td>{{ item.Task.SourceName + "" || "" }}</td>
+          <td>{{ item.Task.Subject + "" || "" }}</td>
+          <td>
+            {{ item.Task.Priority + "" || "" }}
+          </td>
+          <td>{{ formatDate(item.Task.StartDate) + "" || "" }}</td>
+          <td>
+            {{
+              item.Task.State == 1
+                ? "Created"
+                : item.Task.State == 3
+                ? "Pending"
+                : item.Task.State == 5
+                ? "Completed"
+                : item.Task.State == 2
+                ? "Assigned"
+                : item.Task.State + ""
+            }}
+          </td>
+        </tr>
+      </tbody>
+
+      <tbody v-else-if="dataType == 'tasks' && retrieveType == 'Roles Tasks'">
+        <tr v-for="(item, index) in items" :key="index">
+          <td>
+            {{ item.Task.TargetName + "" || "" }}
+          </td>
+          <td>{{ item.Task.SourceName + "" || "" }}</td>
+          <td>{{ item.Task.Subject + "" || "" }}</td>
+          <td>
+            {{ item.Task.Priority + "" || "" }}
+          </td>
+          <td>{{ formatDate(item.Task.StartDate) + "" || "" }}</td>
+          <td>
+            {{
+              item.Task.State == 1
+                ? "Created"
+                : item.Task.State == 3
+                ? "Pending"
+                : item.Task.State == 5
+                ? "Completed"
+                : item.Task.State == 2
+                ? "Assigned"
+                : item.Task.State + ""
+            }}
+          </td>
+        </tr>
+      </tbody>
+
+      <tbody v-else-if="dataType == 'tasks' && retrieveType == 'Teams Tasks'">
         <tr v-for="(item, index) in items" :key="index">
           <td>
             {{ item.Task.TargetName + "" || "" }}
@@ -181,6 +288,7 @@ export default {
       items: [],
       showDialog: false,
       dataType: "vacations", //Default DataType
+      retrieveType: "All Tasks",
       loading: false, // Add loading state
       newVacation: {
         EmployeeID: "",
@@ -203,6 +311,7 @@ export default {
       async handler(newVal) {
         this.loading = true; // Start loading
         console.log("Selected Item:", newVal);
+        this.retrieveType = newVal;
         try {
           if (newVal === "All Vacations") {
             this.dataType = "vacations";

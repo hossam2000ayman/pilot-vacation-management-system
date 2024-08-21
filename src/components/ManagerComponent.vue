@@ -5,7 +5,7 @@
         :vacation="selectedVacation"
         @update-decision="handleUpdateDecision"
       />
-      <ManagerTableComponent @view-manager="handleViewManager" />
+      <ManagerTableComponent :tasks="tasks" @view-manager="handleViewManager" />
     </div>
   </div>
 </template>
@@ -27,6 +27,7 @@ export default {
     return {
       selectedVacation: null,
       managerApproval: null,
+      tasks: [],
     };
   },
   methods: {
@@ -55,7 +56,7 @@ export default {
         console.log(response);
       }, 5000);
 
-      // window.location.reload();
+      setTimeout(() => window.location.reload(), 4000);
     },
   },
 };

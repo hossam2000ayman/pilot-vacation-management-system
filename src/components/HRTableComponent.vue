@@ -71,6 +71,19 @@ export default {
   async mounted() {
     await this.fetchHRsTasks();
   },
+
+  watch: {
+    tasks: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal) {
+          this.hrApprovalTasks = this.tasks
+            .filter((task) => task.Task.Subject === "HR Approval")
+            .sort((a, b) => a.Task.State - b.Task.State);
+        }
+      },
+    },
+  },
   methods: {
     async fetchHRsTasks() {
       this.loading = true;

@@ -79,21 +79,24 @@
         </h2>
       </div>
 
-      <div v-else-if="form.HRApproval == 'Pending'">
-        <button
-          type="button"
-          @click="submitDecision('Approve')"
-          class="btn btn-outline-success m-3"
-        >
-          Approve
-        </button>
-        <button
-          type="button"
-          @click="submitDecision('Reject')"
-          class="btn btn-outline-danger m-3"
-        >
-          Reject
-        </button>
+      <div v-if="loading" class="loading-spinner"></div>
+      <div v-if="!loading">
+        <div v-if="form.HRApproval == 'Pending'">
+          <button
+            type="button"
+            @click="submitDecision('Approve')"
+            class="btn btn-outline-success m-3"
+          >
+            Approve
+          </button>
+          <button
+            type="button"
+            @click="submitDecision('Reject')"
+            class="btn btn-outline-danger m-3"
+          >
+            Reject
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -123,6 +126,7 @@ export default {
         show: false,
         message: "",
       },
+      loading: false,
     };
   },
   watch: {
@@ -156,12 +160,17 @@ export default {
       console.log("Form submitted:", this.form);
       console.log("Decision taken is ::", decision);
       //1- Claim Action
-      TaskService.claimTaskByTaskInstanceAndTarget();
+      this.loading = true;
+      setTimeout(async () => {
+        await TaskService.claimTaskByTaskInstanceAndTarget();
+      }, 2000);
+
       //2- Update the vacation status to approved
       this.$emit("update-decision", this.form.HRApproval); // Emit an event to update the decision state
       this.showSnackBar(
-        `Your decision is ${this.form.HRApproval}ed Successfully :: `
+        `Your decision is ${this.form.HRApproval}ed Successfully Please wait ... `
       );
+      this.loading = false;
     },
 
     showSnackBar(message) {
@@ -169,13 +178,22 @@ export default {
       this.snackbar.show = true;
       setTimeout(() => {
         this.snackbar.show = false;
-      }, 3000); // Snackbar will disappear after 3 seconds
+      }, 7000); // Snackbar will disappear after 7 seconds
     },
   },
 };
 </script>
 
 <style scoped>
+.loading-spinner {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
 .snackbar {
   position: fixed;
   top: 0;

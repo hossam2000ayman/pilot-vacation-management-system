@@ -5,7 +5,7 @@
         :vacation="selectedVacation"
         @update-decision="handleUpdateDecision"
       />
-      <HRTableComponent @view-hr="handleViewHr" />
+      <HRTableComponent :tasks="tasks" @view-hr="handleViewHr" />
     </div>
   </div>
 </template>
@@ -27,6 +27,7 @@ export default {
     return {
       selectedVacation: null,
       hrApproval: null,
+      tasks: [],
     };
   },
   methods: {
@@ -53,9 +54,9 @@ export default {
         response = await TaskService.completeTaskByTaskInstanceAndTarget();
         console.log("Complete Task :::::: ");
         console.log(response);
-      }, 5000);
+      }, 6000);
 
-      // window.location.reload();
+      setTimeout(() => window.location.reload(), 4000);
     },
   },
 };
