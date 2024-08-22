@@ -56,7 +56,7 @@ export default {
         console.log(response);
       }, 5000);
 
-      setTimeout(() => window.location.reload(), 4000);
+      // setTimeout(() => window.location.reload(), 4000);
     },
   },
 };
